@@ -1,0 +1,38 @@
+{
+  "name": "@torx402/circuits",
+  "version": "0.1.0",
+  "description": "torx402 Circom circuits for zk-SNARK proofs",
+  "private": true,
+  "scripts": {
+    "setup": "npm run download:ptau && npm run build && npm run setup:keys",
+    "download:ptau": "bash scripts/download-ptau.sh",
+    "build": "npm run build:circuit",
+    "build:circuit": "circom withdraw.circom --r1cs --wasm --sym --c -o build -l node_modules",
+    "setup:keys": "bash scripts/setup-keys.sh",
+    "generate:verifier": "snarkjs zkey export solidityverifier build/withdraw_final.zkey ../contracts/contracts/Verifier.sol",
+    "info": "snarkjs r1cs info build/withdraw.r1cs",
+    "print": "snarkjs r1cs print build/withdraw.r1cs build/withdraw.sym",
+    "prove": "node scripts/prove.js",
+    "verify": "node scripts/verify.js",
+    "clean": "rm -rf build/*.r1cs build/*.wasm build/*.sym build/*.zkey build/*.json build/withdraw_*",
+    "test": "node scripts/test-circuit.js"
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "ffjavascript": "^0.2.60",
+    "snarkjs": "^0.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.2"
+  },
+  "keywords": [
+    "circom",
+    "zk-snark",
+    "groth16",
+    "zero-knowledge",
+    "privacy"
+  ],
+  "author": "torx402 contributors",
+  "license": "MIT"
+}

@@ -1,0 +1,59 @@
+{
+  "name": "torx402-core",
+  "version": "0.1.0",
+  "description": "Privacy-preserving HTTP micropayment protocol - Core implementation",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "build": "npm run build:circuits && npm run build:contracts && npm run build:client && npm run build:server",
+    "build:circuits": "cd circuits && npm run build",
+    "build:contracts": "cd contracts && npm run compile",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "test": "npm run test:contracts && npm run test:client",
+    "test:contracts": "cd contracts && npm run test",
+    "test:client": "cd client && npm run test",
+    "deploy:testnet": "cd contracts && npm run deploy:base-sepolia",
+    "setup": "npm run setup:circuits && npm install",
+    "setup:circuits": "cd circuits && npm run setup",
+    "clean": "npm run clean:circuits && npm run clean:contracts",
+    "clean:circuits": "cd circuits && npm run clean",
+    "clean:contracts": "cd contracts && npm run clean",
+    "lint": "eslint . --ext .ts,.js",
+    "format": "prettier --write \"**/*.{ts,js,json,md,sol}\""
+  },
+  "keywords": [
+    "tornado",
+    "x402",
+    "privacy",
+    "micropayments",
+    "zero-knowledge",
+    "zk-snark",
+    "ethereum",
+    "web3"
+  ],
+  "author": "torx402 contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/torx402/torx402-core.git"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.1.0",
+    "prettier-plugin-solidity": "^1.2.0",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

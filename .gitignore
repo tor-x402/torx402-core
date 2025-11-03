@@ -1,0 +1,180 @@
+# torx402-core - Standard .gitignore
+
+# ============================================
+# Environment Variables & Secrets
+# ============================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.secret
+private-keys/
+secrets/
+mnemonic.txt
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+.pnp/
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# ============================================
+# Build Artifacts - Contracts
+# ============================================
+contracts/artifacts/
+contracts/cache/
+contracts/typechain/
+contracts/typechain-types/
+contracts/coverage/
+contracts/coverage.json
+contracts/.openzeppelin/
+contracts/deployments/
+
+# ============================================
+# Build Artifacts - Circuits
+# ============================================
+circuits/build/*.r1cs
+circuits/build/*.wasm
+circuits/build/*.sym
+circuits/build/*.zkey
+circuits/build/*.json
+circuits/build/*.ptau
+circuits/build/withdraw_*
+circuits/build/*.wtns
+circuits/build/*.proof
+circuits/build/*.pub
+circuits/build/cpp/
+circuits/build/c/
+!circuits/build/.gitkeep
+
+# ============================================
+# Build Artifacts - Client
+# ============================================
+client/dist/
+client/build/
+client/.cache/
+client/lib/
+client/notes/
+
+# ============================================
+# Build Artifacts - Server
+# ============================================
+server/dist/
+server/build/
+server/.next/
+server/.nuxt/
+server/.output/
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+junit.xml
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+dist/
+build/
+
+# ============================================
+# Hardhat
+# ============================================
+.hardhat/
+cache/
+artifacts/
+
+# ============================================
+# IDE & Editor
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# ============================================
+# Operating System
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# Development Notes (Internal Documentation)
+# ============================================
+notes/
+*.draft.md
+*.md.backup
+
+# ============================================
+# Gas Reports
+# ============================================
+gas-report.txt
+gasReporterOutput.json
+
+# ============================================
+# Temporary Files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+.temp/
+
+# ============================================
+# Documentation Build
+# ============================================
+docs/.vitepress/dist
+docs/.vitepress/cache
+
+# ============================================
+# Misc
+# ============================================
+.turbo/
+.vercel/
+.netlify/
+dist-ssr/
+*.local
+.cache/
