@@ -5,7 +5,10 @@
   "private": true,
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test",
+    "test": "hardhat test test/*.test.ts",
+    "test:unit": "hardhat test test/*.test.ts",
+    "test:integration": "hardhat test test/integration/*.test.ts",
+    "test:all": "hardhat test",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=true hardhat test",
     "deploy": "hardhat run scripts/deploy.ts",

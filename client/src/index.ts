@@ -84,9 +84,9 @@ export type {
   // Utility types
   TransactionReceipt,
   EventLog,
-} from './types';
+} from "./types";
 
-export { ErrorCode, TorxError } from './types';
+export { ErrorCode, TorxError } from "./types";
 
 // ============================================
 // Crypto Exports
@@ -98,6 +98,11 @@ export {
   MAX_248_BIT,
   ZERO_VALUE,
   MERKLE_ZERO_VALUES,
+
+  // Initialization
+  initializeCrypto,
+  initializePedersenHasher,
+  initializeMimcHasher,
 
   // Random generation
   randomBN248,
@@ -131,7 +136,7 @@ export {
   numToBits,
   bitsToNum,
   getZeroValue,
-} from './crypto';
+} from "./crypto";
 
 // ============================================
 // Deposit Exports
@@ -163,7 +168,7 @@ export {
   parseDenomination,
   getDepositSummary,
   createDepositBackup,
-} from './deposit';
+} from "./deposit";
 
 // ============================================
 // Proof Exports
@@ -189,7 +194,7 @@ export {
   estimateProofTime,
   getProofSize,
   checkCircuitArtifacts,
-} from './proof';
+} from "./proof";
 
 // ============================================
 // Withdrawal Exports
@@ -220,23 +225,23 @@ export {
 
   // Batch operations
   prepareMultipleWithdrawals,
-} from './withdraw';
+} from "./withdraw";
 
 // ============================================
 // Convenience Re-exports
 // ============================================
 
 // Default export with all modules
-export { default as crypto } from './crypto';
-export { default as deposit } from './deposit';
-export { default as proof } from './proof';
-export { default as withdraw } from './withdraw';
+export { default as crypto } from "./crypto";
+export { default as deposit } from "./deposit";
+export { default as proof } from "./proof";
+export { default as withdraw } from "./withdraw";
 
 // ============================================
 // Version
 // ============================================
 
-export const VERSION = '0.1.0';
+export const VERSION = "0.1.0";
 
 // ============================================
 // Quick Start Helpers
@@ -256,15 +261,21 @@ export async function quickDeposit(
   poolAddress: string,
   signer: any,
   denomination: string,
-  network: string
+  network: string,
 ): Promise<{ note: string; receipt: any; deposit: any }> {
-  const { generateDeposit, makeDeposit, depositToNote } = await import('./deposit');
+  const { generateDeposit, makeDeposit, depositToNote } = await import(
+    "./deposit"
+  );
 
   // Generate deposit
   const deposit = await generateDeposit(denomination, network);
 
   // Submit to pool
-  const { receipt, deposit: confirmedDeposit } = await makeDeposit(poolAddress, deposit, signer);
+  const { receipt, deposit: confirmedDeposit } = await makeDeposit(
+    poolAddress,
+    deposit,
+    signer,
+  );
 
   // Create note
   const note = await depositToNote(confirmedDeposit);
@@ -288,16 +299,22 @@ export async function quickWithdraw(
   noteString: string,
   recipient: string,
   signer: any,
-  provider: any
+  provider: any,
 ): Promise<any> {
-  const { parseDepositNote } = await import('./deposit');
-  const { withdrawDirect } = await import('./withdraw');
+  const { parseDepositNote } = await import("./deposit");
+  const { withdrawDirect } = await import("./withdraw");
 
   // Parse note
   const deposit = await parseDepositNote(noteString);
 
   // Withdraw
-  const receipt = await withdrawDirect(poolAddress, deposit, recipient, signer, provider);
+  const receipt = await withdrawDirect(
+    poolAddress,
+    deposit,
+    recipient,
+    signer,
+    provider,
+  );
 
   return receipt;
 }

@@ -7,7 +7,7 @@ Privacy-preserving HTTP micropayment protocol combining Tornado Cash's zero-know
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 
-**🌪️ Tornado Cash Privacy** + **🌐 x402 Micropayments** = **🔒 Anonymous HTTP Payments**
+**🌪️ Tornado Cash Privacy** + ** x402 Micropayments** = ** Anonymous HTTP Payments**
 
 </div>
 
