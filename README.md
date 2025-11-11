@@ -22,14 +22,21 @@ Users can pay for APIs, content, and services **without revealing their identity
 
 ## Features
 
+### Core Protocol
+
 - ✅ **Privacy-Preserving**: Zero-knowledge proofs ensure deposit-withdrawal unlinkability
-- ✅ **HTTP-Native**: Standard `402 Payment Required` + `X-PAYMENT` header
 - ✅ **High Volume**: Supports 10,000+ deposits/hour with 10,000 root history
 - ✅ **EVM Compatible**: Optimized for L2s (Base, Arbitrum), BSC, and Ethereum
-- ✅ **Fixed Denominations**: Start with 0.001 ETH pools
-- ✅ **No Accounts Required**: Direct smart contract interaction
+- ✅ **Fixed Denominations**: 0.001 ETH pools
 - ✅ **Double-Spend Prevention**: Nullifier hash tracking
 - ✅ **Battle-Tested Crypto**: Groth16 zk-SNARKs over BN128 curve
+
+### Packages Included
+
+- ✅ **@torx402/core**: Cryptographic utilities (Pedersen, MiMC, field operations)
+- ✅ **Smart Contracts**: PrivacyPool, MerkleTreeWithHistory, Verifier
+- ✅ **Circom Circuits**: Height 32 Merkle tree verification
+- ✅ **Comprehensive Tests**: 44 passing tests (crypto + contracts)
 
 ## Architecture
 
@@ -67,33 +74,35 @@ Users can pay for APIs, content, and services **without revealing their identity
 
 ## Repository Structure
 
+This repository is organized as a monorepo containing the core protocol components:
+
 ```
 torx402-core/
-├── circuits/           # Circom zk-SNARK circuits (height 32)
-│   ├── withdraw.circom
-│   ├── merkleTree.circom
-│   └── build/         # Compiled circuits & trusted setup
+├── crypto/            # @torx402/core - Cryptographic utilities npm package
+│   ├── src/
+│   │   ├── hash.ts           # Pedersen & MiMC hash functions
+│   │   ├── commitment.ts     # Commitment generation
+│   │   ├── field.ts          # Field element operations
+│   │   ├── random.ts         # Secure random generation
+│   │   └── utils.ts          # Conversion utilities
+│   ├── test/
+│   └── package.json
+├── circuits/          # Circom zk-SNARK circuits (height 32)
+│   ├── withdraw.circom       # Main withdrawal circuit
+│   ├── merkleTree.circom     # Merkle tree verification
+│   └── build/                # Compiled circuits & trusted setup
 ├── contracts/         # Solidity smart contracts
 │   ├── PrivacyPool.sol
 │   ├── MerkleTreeWithHistory.sol
 │   ├── Verifier.sol
 │   └── test/
-├── client/           # TypeScript client library
-│   ├── src/
-│   │   ├── deposit.ts
-│   │   ├── withdraw.ts
-│   │   └── proof.ts
-│   └── test/
-├── server/           # Facilitator/Merchant server (Node.js)
-│   ├── src/
-│   │   ├── facilitator.ts
-│   │   ├── verifier.ts
-│   │   └── settlement.ts
-│   └── test/
-└── scripts/          # Deployment & utility scripts
-    ├── deploy.ts
-    └── setup-circuits.sh
+└── package.json       # Monorepo orchestrator
 ```
+
+**Related Packages:**
+
+- **[@torx402/client](https://github.com/torx402/torx402-client)** - TypeScript client library (separate repository)
+- **Server/Facilitator** - Coming soon
 
 ## Prerequisites
 
@@ -138,6 +147,7 @@ npm run setup:circuits
 ```
 
 This will:
+
 - Compile Circom circuits (height 32 Merkle tree)
 - Download Powers of Tau ceremony file
 - Generate circuit-specific proving and verification keys
@@ -156,10 +166,9 @@ npm run build
 Or build individually:
 
 ```bash
+npm run build:crypto      # Build @torx402/core package
 npm run build:circuits    # Compile circuits
 npm run build:contracts   # Compile smart contracts
-npm run build:client      # Build TypeScript client library
-npm run build:server      # Build server components
 ```
 
 ## Testing
@@ -170,17 +179,14 @@ npm run build:server      # Build server components
 npm test
 ```
 
-### Test contracts only
+Or test individually:
 
 ```bash
-npm run test:contracts
+npm run test:crypto       # Test @torx402/core package (20 tests)
+npm run test:contracts    # Test smart contracts (24 tests)
 ```
 
-### Test client library
-
-```bash
-npm run test:client
-```
+**Current test status:** 44 passing tests (20 crypto + 24 contracts)
 
 ## Deployment
 
@@ -200,6 +206,7 @@ npm run deploy:testnet
 ```
 
 This deploys:
+
 - `MerkleTreeWithHistory` (height 32, 10,000 root history)
 - `Verifier` (Groth16 proof verifier)
 - `PrivacyPool` (0.001 ETH denomination)
@@ -213,13 +220,47 @@ npx hardhat run scripts/deploy.ts --network <network-name>
 
 ## Usage
 
-### 1. Deposit (Client)
+> **Note:** The client library has moved to a separate repository: [@torx402/client](https://github.com/torx402/torx402-client)
+
+### Using @torx402/core (Cryptographic Utilities)
 
 ```typescript
-import { generateDeposit, deposit } from 'torx402-core/client'
+import {
+  randomBN248,
+  computeCommitment,
+  computeNullifierHash,
+  initializeCrypto,
+} from '@torx402/core';
+
+// Initialize crypto libraries
+await initializeCrypto();
+
+// Generate random secrets
+const nullifier = randomBN248();
+const secret = randomBN248();
+
+// Compute commitment
+const commitment = await computeCommitment(nullifier, secret);
+console.log('Commitment:', commitment);
+
+// Compute nullifier hash
+const nullifierHash = await computeNullifierHash(nullifier);
+console.log('Nullifier Hash:', nullifierHash);
+```
+
+### 1. Deposit (Client)
+
+See [@torx402/client](https://github.com/torx402/torx402-client) for full client library usage.
+
+```typescript
+import { generateDeposit, deposit } from '@torx402/client';
+import { initializeCrypto } from '@torx402/core';
+
+// Initialize cryptographic libraries
+await initializeCrypto();
 
 // Generate secrets and commitment
-const depositNote = generateDeposit()
+const depositNote = await generateDeposit();
 // => { nullifier, secret, commitment, nullifierHash }
 
 // Deposit to pool
@@ -228,11 +269,10 @@ const tx = await deposit(
   depositNote.commitment,
   denomination, // 0.001 ETH
   signer
-)
+);
 
 // Save your deposit note securely!
-// Format: tornado-eth-0.001-base-sepolia-0x<secrets>
-console.log('Deposit note:', depositNote.toNote())
+console.log('Deposit note:', depositNote.toNote());
 ```
 
 ### 2. Request Resource (HTTP)
@@ -245,23 +285,27 @@ Response: `402 Payment Required`
 
 ```json
 {
-  "paymentRequirements": [{
-    "scheme": "tornado-eth",
-    "network": "base-sepolia",
-    "amount": "1000000000000000",
-    "pool": "0x...",
-    "timeout": 300
-  }]
+  "paymentRequirements": [
+    {
+      "scheme": "tornado-eth",
+      "network": "base-sepolia",
+      "amount": "1000000000000000",
+      "pool": "0x...",
+      "timeout": 300
+    }
+  ]
 }
 ```
 
 ### 3. Generate Proof & Pay (Client)
 
+See [@torx402/client](https://github.com/torx402/torx402-client) for full implementation.
+
 ```typescript
-import { generateProof, createPaymentHeader } from 'torx402-core/client'
+import { generateProof, createPaymentHeader, DepositNote } from '@torx402/client';
 
 // Parse deposit note
-const note = DepositNote.fromString('tornado-eth-0.001-...')
+const note = DepositNote.fromString('tornado-eth-0.001-...');
 
 // Generate zk-SNARK proof
 const { proof, publicSignals } = await generateProof({
@@ -269,57 +313,60 @@ const { proof, publicSignals } = await generateProof({
   recipient: merchantAddress,
   relayer: '0x0000000000000000000000000000000000000000', // No relayer
   fee: 0,
-  poolAddress
-})
+  poolAddress,
+});
 
 // Create X-PAYMENT header
-const paymentHeader = createPaymentHeader(proof, publicSignals)
+const paymentHeader = createPaymentHeader(proof, publicSignals);
 
 // Make request with payment
 const response = await fetch('https://api.example.com/premium-data', {
   headers: {
-    'X-PAYMENT': paymentHeader
-  }
-})
+    'X-PAYMENT': paymentHeader,
+  },
+});
 
 // Resource delivered!
-const data = await response.json()
+const data = await response.json();
 ```
 
 ### 4. Verify & Settle (Merchant)
 
+> **Note:** Merchant/server SDK is under development. Coming soon!
+
 ```typescript
-import { verifyPayment, settlePayment } from 'torx402-core/server'
+// Future API (planned)
+import { verifyPayment, settlePayment } from '@torx402/server';
 
 // Parse X-PAYMENT header
-const payment = parsePaymentHeader(req.headers['x-payment'])
+const payment = parsePaymentHeader(req.headers['x-payment']);
 
 // Verify proof off-chain (fast)
-const valid = await verifyPayment(payment, poolContract)
+const valid = await verifyPayment(payment, poolContract);
 
 if (!valid) {
-  return res.status(402).json({ error: 'Invalid payment proof' })
+  return res.status(402).json({ error: 'Invalid payment proof' });
 }
 
 // Settle on-chain (withdraw from pool to merchant)
-const tx = await settlePayment(payment, poolContract, merchantSigner)
+const tx = await settlePayment(payment, poolContract, merchantSigner);
 
 // Deliver resource
-res.status(200).json({ data: 'Premium content here!' })
+res.status(200).json({ data: 'Premium content here!' });
 ```
 
 ## Technical Specifications
 
-| Parameter | Value | Notes |
-|-----------|-------|-------|
-| **Merkle Tree Height** | 32 | 4.3 billion deposit capacity |
-| **Root History Size** | 10,000 | ~1 hour at 10k deposits/hour |
-| **Hash Function** | MiMC-Sponge | zk-SNARK friendly |
-| **Proof System** | Groth16 | BN128 curve, ~128-bit security |
-| **Proof Size** | 128 bytes | Constant size |
-| **Verification Gas** | ~400,000 | On Base L2: ~$0.0001 |
-| **Target Network** | Base Sepolia | L2 testnet |
-| **Denomination** | 0.001 ETH | Fixed pool size |
+| Parameter              | Value        | Notes                          |
+| ---------------------- | ------------ | ------------------------------ |
+| **Merkle Tree Height** | 32           | 4.3 billion deposit capacity   |
+| **Root History Size**  | 10,000       | ~1 hour at 10k deposits/hour   |
+| **Hash Function**      | MiMC-Sponge  | zk-SNARK friendly              |
+| **Proof System**       | Groth16      | BN128 curve, ~128-bit security |
+| **Proof Size**         | 128 bytes    | Constant size                  |
+| **Verification Gas**   | ~400,000     | On Base L2: ~$0.0001           |
+| **Target Network**     | Base Sepolia | L2 testnet                     |
+| **Denomination**       | 0.001 ETH    | Fixed pool size                |
 
 ## Security
 
@@ -342,6 +389,7 @@ res.status(200).json({ data: 'Premium content here!' })
 ⚠️ **Pre-audit**: This is experimental software. Smart contracts are NOT audited. Use only on testnets with funds you can afford to lose.
 
 **DO NOT use in production until:**
+
 - Professional security audit completed
 - Multi-party trusted setup ceremony performed
 - Extensive testnet testing (6+ months)
@@ -365,14 +413,11 @@ npx hardhat run scripts/deploy.ts --network localhost
 ### Watch mode (auto-rebuild)
 
 ```bash
-# Contracts
+# Crypto package
+cd crypto && npm run dev
+
+# Contracts (with hardhat-watcher plugin)
 cd contracts && npx hardhat watch
-
-# Client
-cd client && npm run dev
-
-# Server
-cd server && npm run dev
 ```
 
 ## Contributing
@@ -394,39 +439,8 @@ npm run lint      # Check linting
 npm run format    # Auto-format code
 ```
 
-## Roadmap
+### External Resources
 
-### Phase 1 (Current) ✅
-- [x] Core smart contracts
-- [x] Circom circuits (height 32)
-- [x] Trusted setup (unsafe for testnet)
-- [x] Unit tests
-
-### Phase 2 (Next)
-- [ ] Client library (deposit, proof generation)
-- [ ] Integration tests
-- [ ] Base Sepolia deployment
-
-### Phase 3
-- [ ] Facilitator server
-- [ ] Merchant integration SDK
-- [ ] API documentation
-
-### Phase 4
-- [ ] Relayer network
-- [ ] IP privacy layer
-- [ ] Fee optimization
-
-### Phase 5
-- [ ] Multi-party trusted setup
-- [ ] Security audit
-- [ ] Mainnet deployment
-
-## Resources
-
-- **Documentation**: [docs/](./docs)
-- **Technical Spec**: [../technical-specification.md](../technical-specification.md)
-- **Architecture**: [../architecture.md](../architecture.md)
 - **Tornado Cash**: https://github.com/tornadocash/tornado-core
 - **x402 Protocol**: https://x402.org
 - **Circom**: https://docs.circom.io
